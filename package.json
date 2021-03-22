@@ -1,0 +1,14 @@
+{
+  "name": "wod-dice-bot",
+  "version": "1.0.0",
+  "description": "A small bot to roll dice for the WoD RPG.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "blgraf",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "discord.js": "^12.5.1"
+  }
+}
