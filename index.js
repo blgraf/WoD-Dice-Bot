@@ -5,25 +5,37 @@ client.on("message", message => {
     if (!message.content.startsWith("!") || message.author.bot)
         return;
 
-    const args = message.content.slice(6).trim().split(" ");
+    const args = message.content.slice(1).trim().split(/ +/);
+    const command = args.shift().toLowerCase();
 
-    if (args.length < 2 || args[0] === "help") {
+    if (command === "help") {
         printHelpMessage(message);
-        return;
+    } else if (command === "roll") {
+        if (args.length < 2) {
+            printHelpMessage(message);
+            return;
+        }
+    
+        // Parses and sets the parameters of the command to variables.
+        var type = args[0];
+        var xy = parseInt(args[1]);
+        var z = args.length == 3 ? parseInt(args[2]) : 6;
+    
+        if (xy < 1 && type !== "init") {
+            printMessage(message, "Are you trying to be funny? You can't roll fewer than 1 die...")
+        } else if (xy > 100 && type !== "init") {
+            printMessage(message, "Really? As if you'd need to roll that many. Let's be realisitc and try with fewer.");
+        } else {
+            roll(message, type, xy, z);
+        }
     }
-
-    // Parses and sets the parameters of the command to variables.
-    var type = args[0];
-    var xy = parseInt(args[1]);
-    var z = args.length == 3 ? parseInt(args[2]) : 6;
-    roll(message, type, xy, z);
 });
 
 // Prints the help message on how to use the bot.
 // TODO improvement, e.g. using embed.
 function printHelpMessage(message) {
     var helpmsg = "";
-    helpmsg += "World of Darkness Dice Bot v1\n\n";
+    helpmsg += "World of Darkness Dice Bot v1.1\n\n";
     helpmsg += "Usage: !roll _RollType_ [_Option1_] [_Option2_]\n\n";
     helpmsg += "RollTypes" + 
         "\n\t\t`init` - An initiative roll." + 
@@ -36,7 +48,7 @@ function printHelpMessage(message) {
         "\n\t\tOnly applicable with RollTypes `norm` and `spec`. Specifies the skill difficulty." + 
         "\n\t\tOptional. Only has to specified if difficulty differs from the default value of 6.\n\n";
     helpmsg += "Source Code available at <https://github.com/blgraf/WoD-Dice-Bot>";
-    message.channel.send(helpmsg);
+    printMessage(message, helpmsg);
 }
 
 // The bones of the bot.
@@ -86,12 +98,12 @@ function roll(message, type, xy, z) {
         case "init":
             var r = singleRoll();
             var res = r + xy;
-            message.channel.send("<@" + message.author + "> rolled a: " + r + "\nResult: " + res);
+            printMessage(message, "<@" + message.author + "> rolled a: " + r + "\nResult: " + res);
             break;
 
         // Any other case (i.e. bad parameter) opens the help method.
         default:
-            printHelpMessage(message);
+            printMessage(message, "The given RollType is unknown to me.\nValid RollTypes are: `init`, `norm` and `spec`.");
             break;
     }
 }
@@ -109,7 +121,17 @@ function result(message, succ, fails, rolls) {
     else if (succ > 0 && succ > fails)
         res += "\nSuccessful roll!\nRolled " + succ + "x success.\nRolled " + fails + "x failure.";
 
-    message.channel.send(res);
+    printMessage(message, res);
+}
+
+// Simply prints a given message while trying to avoid errors like exceeding the 2'000 char limit
+function printMessage(originalMessage, messageToPrint) {
+    try {
+        originalMessage.channel.send(messageToPrint);
+    } catch (err) {
+        console.error("While trying to print the message:\n\n" + messageToPrint);
+        console.error("The following error appeared:\n" + err);
+    }
 }
 
 // Returns a random value between 1 and 10.
