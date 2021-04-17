@@ -35,7 +35,7 @@ client.on("message", message => {
 // TODO improvement, e.g. using embed.
 function printHelpMessage(message) {
     var helpmsg = "";
-    helpmsg += "World of Darkness Dice Bot v1.1\n\n";
+    helpmsg += "World of Darkness Dice Bot v1.0.1\n\n";
     helpmsg += "Usage: !roll _RollType_ [_Option1_] [_Option2_]\n\n";
     helpmsg += "RollTypes" + 
         "\n\t\t`init` - An initiative roll." + 
